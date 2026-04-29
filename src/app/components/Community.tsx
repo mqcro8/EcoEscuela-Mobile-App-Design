@@ -1,0 +1,174 @@
+import { ArrowLeft, Users, UserPlus, Search, TrendingUp } from 'lucide-react';
+import { Input } from './ui/input';
+
+interface CommunityProps {
+  onBack: () => void;
+}
+
+export function Community({ onBack }: CommunityProps) {
+  const groups = [
+    { id: '1A', name: '1°A', members: 28, points: 3950, joined: false, color: 'emerald' },
+    { id: '2A', name: '2°A', members: 25, points: 4520, joined: true, color: 'teal' },
+    { id: '2B', name: '2°B', members: 24, points: 3720, joined: false, color: 'blue' },
+    { id: '3A', name: '3°A', members: 22, points: 4180, joined: false, color: 'cyan' },
+    { id: '3B', name: '3°B', members: 23, points: 4280, joined: false, color: 'indigo' },
+  ];
+
+  const topMembers = [
+    { id: 1, name: 'Carlos López', class: '2°A', points: 1180, avatar: '👨' },
+    { id: 2, name: 'María Torres', class: '2°B', points: 1150, avatar: '👩' },
+    { id: 3, name: 'Juan Pérez', class: '2°A', points: 1120, avatar: '👦' },
+    { id: 4, name: 'Laura Sánchez', class: '3°A', points: 1090, avatar: '👧' },
+  ];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm sticky top-0 z-10">
+        <div className="max-w-md mx-auto px-6 py-4 flex items-center gap-4">
+          <button 
+            onClick={onBack}
+            className="w-10 h-10 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5 text-gray-700" />
+          </button>
+          <h1 className="flex-1 font-bold text-gray-800">Comunidad</h1>
+        </div>
+      </div>
+
+      <div className="max-w-md mx-auto px-6 py-6">
+        {/* Buscador */}
+        <div className="mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+            <Input
+              type="text"
+              placeholder="Buscar grupos o estudiantes..."
+              className="pl-11 h-12 rounded-xl bg-white shadow-sm border-gray-200"
+            />
+          </div>
+        </div>
+
+        {/* Banner de grupo actual */}
+        <div className="bg-gradient-to-r from-teal-500 to-emerald-500 rounded-3xl p-6 mb-6 text-white shadow-lg">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+              <Users className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-teal-100 text-sm">Mi grupo</p>
+              <h2 className="text-xl font-bold">Clase 2°A</h2>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="bg-white/20 rounded-xl p-3 backdrop-blur-sm">
+              <p className="text-2xl font-bold">25</p>
+              <p className="text-xs text-teal-100">Miembros</p>
+            </div>
+            <div className="bg-white/20 rounded-xl p-3 backdrop-blur-sm">
+              <p className="text-2xl font-bold">4,520</p>
+              <p className="text-xs text-teal-100">Puntos</p>
+            </div>
+            <div className="bg-white/20 rounded-xl p-3 backdrop-blur-sm">
+              <p className="text-2xl font-bold">1°</p>
+              <p className="text-xs text-teal-100">Posición</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Grupos escolares */}
+        <div className="mb-6">
+          <h3 className="font-bold text-gray-800 mb-4">Grupos Escolares</h3>
+          <div className="space-y-3">
+            {groups.map((group) => (
+              <div
+                key={group.id}
+                className={`bg-white rounded-2xl p-5 shadow-md ${group.joined ? 'border-2 border-teal-300' : ''}`}
+              >
+                <div className="flex items-center gap-4">
+                  <div className={`w-14 h-14 bg-${group.color}-500 rounded-xl flex items-center justify-center flex-shrink-0`}>
+                    <span className="text-2xl font-bold text-white">{group.name}</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4 className="font-semibold text-gray-800">Clase {group.name}</h4>
+                      {group.joined && (
+                        <span className="bg-teal-100 text-teal-700 text-xs px-2 py-0.5 rounded-full">
+                          Unido
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <span className="flex items-center gap-1">
+                        <Users className="w-4 h-4" />
+                        {group.members}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <TrendingUp className="w-4 h-4" />
+                        {group.points} pts
+                      </span>
+                    </div>
+                  </div>
+                  {!group.joined && (
+                    <button className={`bg-${group.color}-500 hover:bg-${group.color}-600 text-white p-2 rounded-xl transition-colors`}>
+                      <UserPlus className="w-5 h-5" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Barra de progreso del grupo */}
+                <div className="mt-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-gray-500">Meta mensual</span>
+                    <span className="text-xs font-semibold text-gray-700">
+                      {Math.round((group.points / 5000) * 100)}%
+                    </span>
+                  </div>
+                  <div className="bg-gray-200 rounded-full h-2 overflow-hidden">
+                    <div 
+                      className={`bg-gradient-to-r from-${group.color}-400 to-${group.color}-500 h-full rounded-full`}
+                      style={{ width: `${(group.points / 5000) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Miembros destacados */}
+        <div className="bg-white rounded-3xl p-5 shadow-md">
+          <h3 className="font-bold text-gray-800 mb-4">Miembros Destacados</h3>
+          <div className="space-y-3">
+            {topMembers.map((member, index) => (
+              <div
+                key={member.id}
+                className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
+              >
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-xl flex-shrink-0">
+                  {member.avatar}
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-gray-800 text-sm">{member.name}</p>
+                  <p className="text-xs text-gray-500">{member.class}</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold text-emerald-600">{member.points}</p>
+                  <p className="text-xs text-gray-500">puntos</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Mensaje motivacional */}
+        <div className="mt-6 bg-gradient-to-r from-amber-100 to-orange-100 rounded-2xl p-5 border-2 border-amber-200">
+          <p className="text-center text-sm text-amber-900">
+            <span className="font-semibold">🤝 Juntos somos más fuertes</span><br />
+            Colabora con tu clase para alcanzar la meta mensual
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
