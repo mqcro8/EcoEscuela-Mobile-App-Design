@@ -1,4 +1,6 @@
+import { useState, useEffect } from 'react';
 import { Target, BarChart3, Users, Settings, User, Leaf, Droplets, TreePine } from 'lucide-react';
+import { StorageService } from '../services/storageService';
 
 interface MainMenuProps {
   onNavigate: (screen: string) => void;
@@ -6,6 +8,15 @@ interface MainMenuProps {
 }
 
 export function MainMenu({ onNavigate, userName }: MainMenuProps) {
+  const [totalPoints, setTotalPoints] = useState(0);
+
+  useEffect(() => {
+    const user = StorageService.getUser();
+    if (user) {
+      setTotalPoints(user.totalPoints);
+    }
+  }, []);
+
   const menuItems = [
     { id: 'challenges', icon: Target, title: 'Retos Ecológicos', color: 'bg-emerald-500', description: 'Completa desafíos semanales' },
     { id: 'statistics', icon: BarChart3, title: 'Estadísticas', color: 'bg-teal-500', description: 'Ver tu progreso' },
@@ -51,7 +62,7 @@ export function MainMenu({ onNavigate, userName }: MainMenuProps) {
           </div>
           <div className="bg-white/20 rounded-xl p-3 backdrop-blur-sm">
             <p className="text-xs text-emerald-50 mb-1">Puntos totales</p>
-            <p className="text-2xl font-bold">1,250 🌟</p>
+            <p className="text-2xl font-bold">{totalPoints.toLocaleString()} 🌟</p>
           </div>
         </div>
 

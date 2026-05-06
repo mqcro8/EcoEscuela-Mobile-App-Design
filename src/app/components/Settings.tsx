@@ -1,29 +1,63 @@
+import { useState, useEffect } from 'react';
 import { ArrowLeft, Globe, User, Bell, Shield, HelpCircle, LogOut } from 'lucide-react';
 import { Switch } from './ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { StorageService, User as UserType, AppSettings as AppSettingsType } from '../services/storageService';
 
 interface SettingsProps {
   onBack: () => void;
+  onLogout: () => void;
 }
 
-export function Settings({ onBack }: SettingsProps) {
+export function Settings({ onBack, onLogout }: SettingsProps) {
+  const [user, setUser] = useState<UserType | null>(null);
+  const [settings, setSettings] = useState<AppSettingsType>(StorageService.getSettings());
+
+  useEffect(() => {
+    const currentUser = StorageService.getUser();
+    setUser(currentUser);
+  }, []);
+
+  const handleLanguageChange = (value: string) => {
+    const languageMap: { [key: string]: string } = {
+      'Español': 'es',
+      'English': 'en',
+      'Français': 'fr',
+    };
+    StorageService.updateSettings({ language: languageMap[value] || 'es' });
+    setSettings(StorageService.getSettings());
+  };
+
+  const handleNotificationsChange = (checked: boolean) => {
+    StorageService.updateSettings({ notifications: checked });
+    setSettings(StorageService.getSettings());
+  };
+
+  const handleLogout = () => {
+    onLogout();
+  };
+
+  if (!user) {
+    return null;
+  }
+
   const settingsSections = [
     {
       title: 'Cuenta',
       icon: User,
       items: [
-        { label: 'Nombre', value: 'Ana García', type: 'text' },
-        { label: 'Correo electrónico', value: 'ana.garcia@escuela.edu', type: 'text' },
-        { label: 'Clase', value: '2°A', type: 'text' },
+        { label: 'Nombre', value: user.fullName, type: 'text' },
+        { label: 'Correo electrónico', value: user.email, type: 'text' },
+        { label: 'Clase', value: user.classRoom, type: 'text' },
       ],
     },
     {
       title: 'Preferencias',
       icon: Globe,
       items: [
-        { label: 'Idioma', type: 'select', options: ['Español', 'English', 'Français'] },
-        { label: 'Notificaciones de retos', type: 'switch', value: true },
-        { label: 'Notificaciones de logros', type: 'switch', value: true },
+        { label: 'Idioma', type: 'select', options: ['Español', 'English', 'Français'], value: settings.language },
+        { label: 'Notificaciones de retos', type: 'switch', value: settings.notifications },
+        { label: 'Notificaciones de logros', type: 'switch', value: settings.notifications },
       ],
     },
   ];
@@ -66,7 +100,10 @@ export function Settings({ onBack }: SettingsProps) {
                         </div>
                       )}
                       {item.type === 'select' && (
-                        <Select defaultValue="Español">
+                        <Select
+                          defaultValue={item.value === 'es' ? 'Español' : item.value === 'en' ? 'English' : 'Français'}
+                          onValueChange={handleLanguageChange}
+                        >
                           <SelectTrigger className="w-full rounded-xl bg-gray-50 border-gray-200">
                             <SelectValue />
                           </SelectTrigger>
@@ -84,7 +121,10 @@ export function Settings({ onBack }: SettingsProps) {
                           <span className="text-sm text-gray-600">
                             {item.value ? 'Activado' : 'Desactivado'}
                           </span>
-                          <Switch defaultChecked={item.value} />
+                          <Switch
+                            checked={item.value as boolean}
+                            onCheckedChange={handleNotificationsChange}
+                          />
                         </div>
                       )}
                     </div>
@@ -121,7 +161,10 @@ export function Settings({ onBack }: SettingsProps) {
           </div>
 
           {/* Botón de cerrar sesión */}
-          <button className="w-full bg-white rounded-2xl p-5 shadow-md flex items-center justify-center gap-3 hover:bg-red-50 transition-colors border-2 border-transparent hover:border-red-200">
+          <button
+            onClick={handleLogout}
+            className="w-full bg-white rounded-2xl p-5 shadow-md flex items-center justify-center gap-3 hover:bg-red-50 transition-colors border-2 border-transparent hover:border-red-200"
+          >
             <LogOut className="w-5 h-5 text-red-600" />
             <span className="font-semibold text-red-600">Cerrar Sesión</span>
           </button>

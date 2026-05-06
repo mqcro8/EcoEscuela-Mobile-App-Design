@@ -1,42 +1,63 @@
+import { useState, useEffect } from 'react';
 import { ArrowLeft, TrendingUp, Users, Award } from 'lucide-react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { StorageService, User } from '../services/storageService';
 
 interface StatisticsProps {
   onBack: () => void;
 }
 
 export function Statistics({ onBack }: StatisticsProps) {
+  const [user, setUser] = useState<User | null>(null);
+  const [completedChallenges, setCompletedChallenges] = useState(0);
+
+  useEffect(() => {
+    const currentUser = StorageService.getUser();
+    const challenges = StorageService.getChallenges();
+    const completed = challenges.filter(c => c.completed).length;
+
+    setUser(currentUser);
+    setCompletedChallenges(completed);
+  }, []);
+
+  if (!user) {
+    return null;
+  }
+
+  // Generate weekly data based on current progress
   const weeklyData = [
-    { day: 'Lun', points: 45, challenges: 2 },
-    { day: 'Mar', points: 30, challenges: 1 },
-    { day: 'Mié', points: 60, challenges: 3 },
-    { day: 'Jue', points: 40, challenges: 2 },
-    { day: 'Vie', points: 55, challenges: 2 },
-    { day: 'Sáb', points: 35, challenges: 1 },
-    { day: 'Dom', points: 50, challenges: 2 },
+    { id: 'mon', day: 'Lun', points: Math.max(1, Math.floor(user.totalPoints * 0.1)), challenges: Math.max(0, Math.floor(completedChallenges * 0.1)) },
+    { id: 'tue', day: 'Mar', points: Math.max(1, Math.floor(user.totalPoints * 0.08)), challenges: Math.max(0, Math.floor(completedChallenges * 0.15)) },
+    { id: 'wed', day: 'Mié', points: Math.max(1, Math.floor(user.totalPoints * 0.15)), challenges: Math.max(0, Math.floor(completedChallenges * 0.2)) },
+    { id: 'thu', day: 'Jue', points: Math.max(1, Math.floor(user.totalPoints * 0.12)), challenges: Math.max(0, Math.floor(completedChallenges * 0.15)) },
+    { id: 'fri', day: 'Vie', points: Math.max(1, Math.floor(user.totalPoints * 0.14)), challenges: Math.max(0, Math.floor(completedChallenges * 0.2)) },
+    { id: 'sat', day: 'Sáb', points: Math.max(1, Math.floor(user.totalPoints * 0.11)), challenges: Math.max(0, Math.floor(completedChallenges * 0.1)) },
+    { id: 'sun', day: 'Dom', points: Math.max(1, Math.floor(user.totalPoints * 0.13)), challenges: Math.max(0, Math.floor(completedChallenges * 0.15)) },
   ];
 
   const monthlyData = [
-    { week: 'Sem 1', points: 280 },
-    { week: 'Sem 2', points: 320 },
-    { week: 'Sem 3', points: 295 },
-    { week: 'Sem 4', points: 355 },
+    { id: 'week1', week: 'Sem 1', points: Math.max(5, Math.floor(user.totalPoints * 0.2)) },
+    { id: 'week2', week: 'Sem 2', points: Math.max(5, Math.floor(user.totalPoints * 0.25)) },
+    { id: 'week3', week: 'Sem 3', points: Math.max(5, Math.floor(user.totalPoints * 0.23)) },
+    { id: 'week4', week: 'Sem 4', points: Math.max(5, Math.floor(user.totalPoints * 0.32)) },
   ];
 
+  const weeklyPoints = weeklyData.reduce((sum, day) => sum + day.points, 0);
+
   const classRanking = [
-    { position: 1, name: 'Ana García', class: '2°A', points: 1250, isCurrentUser: true },
-    { position: 2, name: 'Carlos López', class: '2°A', points: 1180 },
-    { position: 3, name: 'María Torres', class: '2°B', points: 1150 },
-    { position: 4, name: 'Juan Pérez', class: '2°A', points: 1120 },
-    { position: 5, name: 'Laura Sánchez', class: '3°A', points: 1090 },
+    { position: 1, name: user.fullName, class: user.classRoom, points: user.totalPoints, isCurrentUser: true },
+    { position: 2, name: 'Carlos López', class: '2°A', points: user.totalPoints - 70 },
+    { position: 3, name: 'María Torres', class: '2°B', points: user.totalPoints - 100 },
+    { position: 4, name: 'Juan Pérez', class: '2°A', points: user.totalPoints - 130 },
+    { position: 5, name: 'Laura Sánchez', class: '3°A', points: user.totalPoints - 160 },
   ];
 
   const groupProgress = [
-    { group: '2°A', points: 4520, members: 25 },
-    { group: '3°B', points: 4280, members: 23 },
-    { group: '1°A', points: 3950, members: 28 },
-    { group: '2°B', points: 3720, members: 24 },
+    { group: user.classRoom, points: user.totalPoints * 4, members: 25 },
+    { group: '3°B', points: user.totalPoints * 3.8, members: 23 },
+    { group: '1°A', points: user.totalPoints * 3.5, members: 28 },
+    { group: '2°B', points: user.totalPoints * 3.2, members: 24 },
   ];
 
   return (
@@ -61,14 +82,14 @@ export function Statistics({ onBack }: StatisticsProps) {
             <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-2">
               <TrendingUp className="w-5 h-5 text-emerald-600" />
             </div>
-            <p className="text-2xl font-bold text-gray-800">315</p>
+            <p className="text-2xl font-bold text-gray-800">{weeklyPoints}</p>
             <p className="text-xs text-gray-500">Puntos esta semana</p>
           </div>
           <div className="bg-white rounded-2xl p-4 shadow-md text-center">
             <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
               <Award className="w-5 h-5 text-blue-600" />
             </div>
-            <p className="text-2xl font-bold text-gray-800">11</p>
+            <p className="text-2xl font-bold text-gray-800">{completedChallenges}</p>
             <p className="text-xs text-gray-500">Retos completados</p>
           </div>
           <div className="bg-white rounded-2xl p-4 shadow-md text-center">
@@ -96,10 +117,10 @@ export function Statistics({ onBack }: StatisticsProps) {
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis dataKey="day" tick={{ fontSize: 12 }} />
                   <YAxis tick={{ fontSize: 12 }} />
-                  <Tooltip 
+                  <Tooltip
                     contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
                   />
-                  <Bar dataKey="points" fill="#10b981" radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="points" fill="#10b981" radius={[8, 8, 0, 0]} key="points-bar" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -112,10 +133,10 @@ export function Statistics({ onBack }: StatisticsProps) {
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis dataKey="day" tick={{ fontSize: 12 }} />
                   <YAxis tick={{ fontSize: 12 }} />
-                  <Tooltip 
+                  <Tooltip
                     contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
                   />
-                  <Line type="monotone" dataKey="challenges" stroke="#0ea5e9" strokeWidth={3} dot={{ fill: '#0ea5e9', r: 5 }} />
+                  <Line type="monotone" dataKey="challenges" stroke="#0ea5e9" strokeWidth={3} dot={{ fill: '#0ea5e9', r: 5 }} key="challenges-line" />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -129,10 +150,10 @@ export function Statistics({ onBack }: StatisticsProps) {
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis dataKey="week" tick={{ fontSize: 12 }} />
                   <YAxis tick={{ fontSize: 12 }} />
-                  <Tooltip 
+                  <Tooltip
                     contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
                   />
-                  <Bar dataKey="points" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="points" fill="#8b5cf6" radius={[8, 8, 0, 0]} key="monthly-points-bar" />
                 </BarChart>
               </ResponsiveContainer>
             </div>

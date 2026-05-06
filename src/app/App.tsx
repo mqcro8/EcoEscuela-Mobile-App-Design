@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LoginScreen } from './components/LoginScreen';
 import { MainMenu } from './components/MainMenu';
 import { WeeklyChallenges } from './components/WeeklyChallenges';
@@ -6,15 +6,34 @@ import { UserProfile } from './components/UserProfile';
 import { Statistics } from './components/Statistics';
 import { Community } from './components/Community';
 import { Settings } from './components/Settings';
+import { StorageService, User } from './services/storageService';
 
 type Screen = 'login' | 'main' | 'challenges' | 'profile' | 'statistics' | 'community' | 'settings';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('login');
-  const userName = 'Ana';
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-  const handleLogin = () => {
+  // Check if user is already logged in on mount
+  useEffect(() => {
+    if (StorageService.isLoggedIn()) {
+      const user = StorageService.getUser();
+      if (user) {
+        setCurrentUser(user);
+        setCurrentScreen('main');
+      }
+    }
+  }, []);
+
+  const handleLogin = (user: User) => {
+    setCurrentUser(user);
     setCurrentScreen('main');
+  };
+
+  const handleLogout = () => {
+    StorageService.logout();
+    setCurrentUser(null);
+    setCurrentScreen('login');
   };
 
   const handleNavigate = (screen: string) => {
@@ -33,8 +52,8 @@ export default function App() {
           <LoginScreen onLogin={handleLogin} />
         )}
         
-        {currentScreen === 'main' && (
-          <MainMenu onNavigate={handleNavigate} userName={userName} />
+        {currentScreen === 'main' && currentUser && (
+          <MainMenu onNavigate={handleNavigate} userName={currentUser.fullName.split(' ')[0]} />
         )}
         
         {currentScreen === 'challenges' && (
@@ -54,7 +73,7 @@ export default function App() {
         )}
         
         {currentScreen === 'settings' && (
-          <Settings onBack={handleBack} />
+          <Settings onBack={handleBack} onLogout={handleLogout} />
         )}
       </div>
     </div>

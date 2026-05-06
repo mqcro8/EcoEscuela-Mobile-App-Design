@@ -1,25 +1,52 @@
+import { useState, useEffect } from 'react';
 import { ArrowLeft, Users, UserPlus, Search, TrendingUp } from 'lucide-react';
 import { Input } from './ui/input';
+import { StorageService, User } from '../services/storageService';
 
 interface CommunityProps {
   onBack: () => void;
 }
 
 export function Community({ onBack }: CommunityProps) {
-  const groups = [
-    { id: '1A', name: '1°A', members: 28, points: 3950, joined: false, color: 'emerald' },
-    { id: '2A', name: '2°A', members: 25, points: 4520, joined: true, color: 'teal' },
-    { id: '2B', name: '2°B', members: 24, points: 3720, joined: false, color: 'blue' },
-    { id: '3A', name: '3°A', members: 22, points: 4180, joined: false, color: 'cyan' },
-    { id: '3B', name: '3°B', members: 23, points: 4280, joined: false, color: 'indigo' },
-  ];
+  const [user, setUser] = useState<User | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<string | undefined>();
 
-  const topMembers = [
-    { id: 1, name: 'Carlos López', class: '2°A', points: 1180, avatar: '👨' },
-    { id: 2, name: 'María Torres', class: '2°B', points: 1150, avatar: '👩' },
-    { id: 3, name: 'Juan Pérez', class: '2°A', points: 1120, avatar: '👦' },
-    { id: 4, name: 'Laura Sánchez', class: '3°A', points: 1090, avatar: '👧' },
-  ];
+  useEffect(() => {
+    const currentUser = StorageService.getUser();
+    setUser(currentUser);
+    setSelectedGroup(currentUser?.selectedGroup || currentUser?.classRoom);
+  }, []);
+
+  const handleJoinGroup = (groupId: string) => {
+    StorageService.updateUser({ selectedGroup: groupId });
+    const updatedUser = StorageService.getUser();
+    setUser(updatedUser);
+    setSelectedGroup(groupId);
+  };
+
+  const groups = [
+    { id: '1°A', name: '1°A', members: 28, points: 3950, color: 'emerald' },
+    { id: '2°A', name: '2°A', members: 25, points: 4520, color: 'teal' },
+    { id: '2°B', name: '2°B', members: 24, points: 3720, color: 'blue' },
+    { id: '3°A', name: '3°A', members: 22, points: 4180, color: 'cyan' },
+    { id: '3°B', name: '3°B', members: 23, points: 4280, color: 'indigo' },
+  ].map(group => ({
+    ...group,
+    joined: group.id === selectedGroup,
+  }));
+
+  const topMembers = user ? [
+    { id: 1, name: 'Carlos López', class: '2°A', points: user.totalPoints - 70, avatar: '👨' },
+    { id: 2, name: 'María Torres', class: '2°B', points: user.totalPoints - 100, avatar: '👩' },
+    { id: 3, name: 'Juan Pérez', class: '2°A', points: user.totalPoints - 130, avatar: '👦' },
+    { id: 4, name: 'Laura Sánchez', class: '3°A', points: user.totalPoints - 160, avatar: '👧' },
+  ] : [];
+
+  const currentGroup = groups.find(g => g.joined);
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50">
@@ -50,31 +77,33 @@ export function Community({ onBack }: CommunityProps) {
         </div>
 
         {/* Banner de grupo actual */}
-        <div className="bg-gradient-to-r from-teal-500 to-emerald-500 rounded-3xl p-6 mb-6 text-white shadow-lg">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-              <Users className="w-6 h-6" />
+        {currentGroup && (
+          <div className="bg-gradient-to-r from-teal-500 to-emerald-500 rounded-3xl p-6 mb-6 text-white shadow-lg">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                <Users className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-teal-100 text-sm">Mi grupo</p>
+                <h2 className="text-xl font-bold">Clase {currentGroup.name}</h2>
+              </div>
             </div>
-            <div>
-              <p className="text-teal-100 text-sm">Mi grupo</p>
-              <h2 className="text-xl font-bold">Clase 2°A</h2>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="bg-white/20 rounded-xl p-3 backdrop-blur-sm">
+                <p className="text-2xl font-bold">{currentGroup.members}</p>
+                <p className="text-xs text-teal-100">Miembros</p>
+              </div>
+              <div className="bg-white/20 rounded-xl p-3 backdrop-blur-sm">
+                <p className="text-2xl font-bold">{currentGroup.points.toLocaleString()}</p>
+                <p className="text-xs text-teal-100">Puntos</p>
+              </div>
+              <div className="bg-white/20 rounded-xl p-3 backdrop-blur-sm">
+                <p className="text-2xl font-bold">1°</p>
+                <p className="text-xs text-teal-100">Posición</p>
+              </div>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-white/20 rounded-xl p-3 backdrop-blur-sm">
-              <p className="text-2xl font-bold">25</p>
-              <p className="text-xs text-teal-100">Miembros</p>
-            </div>
-            <div className="bg-white/20 rounded-xl p-3 backdrop-blur-sm">
-              <p className="text-2xl font-bold">4,520</p>
-              <p className="text-xs text-teal-100">Puntos</p>
-            </div>
-            <div className="bg-white/20 rounded-xl p-3 backdrop-blur-sm">
-              <p className="text-2xl font-bold">1°</p>
-              <p className="text-xs text-teal-100">Posición</p>
-            </div>
-          </div>
-        </div>
+        )}
 
         {/* Grupos escolares */}
         <div className="mb-6">
@@ -110,7 +139,10 @@ export function Community({ onBack }: CommunityProps) {
                     </div>
                   </div>
                   {!group.joined && (
-                    <button className={`bg-${group.color}-500 hover:bg-${group.color}-600 text-white p-2 rounded-xl transition-colors`}>
+                    <button
+                      onClick={() => handleJoinGroup(group.id)}
+                      className={`bg-${group.color}-500 hover:bg-${group.color}-600 text-white p-2 rounded-xl transition-colors`}
+                    >
                       <UserPlus className="w-5 h-5" />
                     </button>
                   )}
