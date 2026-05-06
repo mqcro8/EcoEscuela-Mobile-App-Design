@@ -1,6 +1,7 @@
 # EcoEscuela
 
 A gamified web application designed to encourage students to adopt eco-friendly habits by turning environmental care into a fun, engaging game. Built for a school programming class project addressing the real-world problem of low student engagement in environmental initiatives.
+<img width="653" height="921" alt="image" src="https://github.com/user-attachments/assets/82aeff75-2497-4184-b8aa-c38635d439cf" />
 
 ## The Problem
 
