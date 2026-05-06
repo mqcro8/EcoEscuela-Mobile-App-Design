@@ -33,6 +33,20 @@ export function Settings({ onBack, onLogout }: SettingsProps) {
     setSettings(StorageService.getSettings());
   };
 
+  const handleAchievementNotificationsChange = (checked: boolean) => {
+    StorageService.updateSettings({ achievementNotifications: checked });
+    setSettings(StorageService.getSettings());
+  };
+
+  const getLanguageLabel = (code: string): string => {
+    const map: Record<string, string> = { es: 'Español', en: 'English', fr: 'Français' };
+    return map[code] || 'Español';
+  };
+
+  const handlePlaceholderClick = (section: string) => {
+    alert(`Sección de ${section} - Próximamente`);
+  };
+
   const handleLogout = () => {
     onLogout();
   };
@@ -57,7 +71,7 @@ export function Settings({ onBack, onLogout }: SettingsProps) {
       items: [
         { label: 'Idioma', type: 'select', options: ['Español', 'English', 'Français'], value: settings.language },
         { label: 'Notificaciones de retos', type: 'switch', value: settings.notifications },
-        { label: 'Notificaciones de logros', type: 'switch', value: settings.notifications },
+        { label: 'Notificaciones de logros', type: 'switch', value: settings.achievementNotifications },
       ],
     },
   ];
@@ -101,7 +115,7 @@ export function Settings({ onBack, onLogout }: SettingsProps) {
                       )}
                       {item.type === 'select' && (
                         <Select
-                          defaultValue={item.value === 'es' ? 'Español' : item.value === 'en' ? 'English' : 'Français'}
+                          value={getLanguageLabel(settings.language)}
                           onValueChange={handleLanguageChange}
                         >
                           <SelectTrigger className="w-full rounded-xl bg-gray-50 border-gray-200">
@@ -123,7 +137,7 @@ export function Settings({ onBack, onLogout }: SettingsProps) {
                           </span>
                           <Switch
                             checked={item.value as boolean}
-                            onCheckedChange={handleNotificationsChange}
+                            onCheckedChange={item.label === 'Notificaciones de logros' ? handleAchievementNotificationsChange : handleNotificationsChange}
                           />
                         </div>
                       )}
@@ -137,21 +151,21 @@ export function Settings({ onBack, onLogout }: SettingsProps) {
           {/* Opciones adicionales */}
           <div className="bg-white rounded-3xl shadow-md overflow-hidden">
             <div className="p-5 space-y-3">
-              <button className="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-gray-50 transition-colors">
+              <button onClick={() => handlePlaceholderClick('Notificaciones')} className="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-gray-50 transition-colors">
                 <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                   <Bell className="w-5 h-5 text-blue-600" />
                 </div>
                 <span className="flex-1 text-left font-medium text-gray-800">Notificaciones</span>
               </button>
 
-              <button className="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-gray-50 transition-colors">
+              <button onClick={() => handlePlaceholderClick('Privacidad y Seguridad')} className="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-gray-50 transition-colors">
                 <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
                   <Shield className="w-5 h-5 text-purple-600" />
                 </div>
                 <span className="flex-1 text-left font-medium text-gray-800">Privacidad y seguridad</span>
               </button>
 
-              <button className="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-gray-50 transition-colors">
+              <button onClick={() => handlePlaceholderClick('Ayuda y Soporte')} className="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-gray-50 transition-colors">
                 <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
                   <HelpCircle className="w-5 h-5 text-amber-600" />
                 </div>

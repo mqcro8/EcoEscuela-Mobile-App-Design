@@ -40,6 +40,7 @@ export interface Badge {
 export interface AppSettings {
   language: string;
   notifications: boolean;
+  achievementNotifications: boolean;
   theme: 'light' | 'dark';
   reminderTime: string;
 }
@@ -130,6 +131,7 @@ const DEFAULT_BADGES: Badge[] = [
 const DEFAULT_SETTINGS: AppSettings = {
   language: 'es',
   notifications: true,
+  achievementNotifications: true,
   theme: 'light',
   reminderTime: '18:00',
 };

@@ -15,6 +15,33 @@ const ICON_MAP = {
   TreePine,
 };
 
+const COLOR_BG_MAP: Record<string, string> = {
+  emerald: 'bg-emerald-500',
+  blue: 'bg-blue-500',
+  teal: 'bg-teal-500',
+  cyan: 'bg-cyan-500',
+  green: 'bg-green-500',
+};
+
+const COLOR_HOVER_MAP: Record<string, string> = {
+  emerald: 'hover:bg-emerald-600',
+  blue: 'hover:bg-blue-600',
+  teal: 'hover:bg-teal-600',
+  cyan: 'hover:bg-cyan-600',
+  green: 'hover:bg-green-600',
+};
+
+const getWeekRange = (): string => {
+  const now = new Date();
+  const dayOfWeek = now.getDay();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - ((dayOfWeek + 6) % 7));
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  return `Del ${monday.getDate()} al ${sunday.getDate()} de ${months[sunday.getMonth()]}`;
+};
+
 export function WeeklyChallenges({ onBack }: WeeklyChallengesProps) {
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [badges, setBadges] = useState(StorageService.getBadges());
@@ -49,7 +76,7 @@ export function WeeklyChallenges({ onBack }: WeeklyChallengesProps) {
           </button>
           <div className="flex-1">
             <h1 className="font-bold text-gray-800">Retos Semanales</h1>
-            <p className="text-xs text-gray-500">Del 1 al 7 de marzo</p>
+            <p className="text-xs text-gray-500">{getWeekRange()}</p>
           </div>
           <div className="bg-amber-100 px-3 py-1 rounded-full flex items-center gap-1">
             <Award className="w-4 h-4 text-amber-700" />
@@ -81,7 +108,7 @@ export function WeeklyChallenges({ onBack }: WeeklyChallengesProps) {
                 className={`${bgColor} rounded-2xl p-5 shadow-md border-2 ${challenge.completed ? 'border-emerald-300' : 'border-transparent'}`}
               >
                 <div className="flex items-start gap-4 mb-4">
-                  <div className={`bg-${challenge.color}-500 w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0`}>
+                  <div className={`${COLOR_BG_MAP[challenge.color] || 'bg-gray-500'} w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0`}>
                     {Icon && <Icon className="w-6 h-6 text-white" />}
                   </div>
                   <div className="flex-1">
@@ -117,7 +144,7 @@ export function WeeklyChallenges({ onBack }: WeeklyChallengesProps) {
                   {!challenge.completed && (
                     <button
                       onClick={() => handleRegisterProgress(challenge.id)}
-                      className={`px-4 py-2 bg-${challenge.color}-500 hover:bg-${challenge.color}-600 text-white text-sm rounded-lg transition-colors`}
+                      className={`px-4 py-2 ${COLOR_BG_MAP[challenge.color] || 'bg-gray-500'} ${COLOR_HOVER_MAP[challenge.color] || 'hover:bg-gray-600'} text-white text-sm rounded-lg transition-colors`}
                     >
                       Registrar
                     </button>

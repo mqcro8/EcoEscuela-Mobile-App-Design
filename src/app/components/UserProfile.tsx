@@ -7,6 +7,24 @@ interface UserProfileProps {
   onBack: () => void;
 }
 
+const STAT_BG_MAP: Record<string, string> = {
+  emerald: 'bg-emerald-50',
+  orange: 'bg-orange-50',
+  amber: 'bg-amber-50',
+};
+
+const STAT_TEXT_MAP: Record<string, string> = {
+  emerald: 'text-emerald-600',
+  orange: 'text-orange-600',
+  amber: 'text-amber-600',
+};
+
+const STAT_BOLD_MAP: Record<string, string> = {
+  emerald: 'text-emerald-700',
+  orange: 'text-orange-700',
+  amber: 'text-amber-700',
+};
+
 export function UserProfile({ onBack }: UserProfileProps) {
   const [user, setUser] = useState<User | null>(null);
   const [badges, setBadges] = useState<Badge[]>([]);
@@ -81,9 +99,9 @@ export function UserProfile({ onBack }: UserProfileProps) {
             {stats.map((stat) => {
               const Icon = stat.icon;
               return (
-                <div key={stat.label} className={`bg-${stat.color}-50 rounded-xl p-3 text-center`}>
-                  <Icon className={`w-5 h-5 text-${stat.color}-600 mx-auto mb-1`} />
-                  <p className={`text-lg font-bold text-${stat.color}-700`}>{stat.value}</p>
+                <div key={stat.label} className={`${STAT_BG_MAP[stat.color] || 'bg-gray-50'} rounded-xl p-3 text-center`}>
+                  <Icon className={`w-5 h-5 ${STAT_TEXT_MAP[stat.color] || 'text-gray-600'} mx-auto mb-1`} />
+                  <p className={`text-lg font-bold ${STAT_BOLD_MAP[stat.color] || 'text-gray-700'}`}>{stat.value}</p>
                   <p className="text-xs text-gray-600">{stat.label}</p>
                 </div>
               );

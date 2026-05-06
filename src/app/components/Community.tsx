@@ -7,9 +7,42 @@ interface CommunityProps {
   onBack: () => void;
 }
 
+const COLOR_BG_MAP: Record<string, string> = {
+  emerald: 'bg-emerald-500',
+  teal: 'bg-teal-500',
+  blue: 'bg-blue-500',
+  cyan: 'bg-cyan-500',
+  indigo: 'bg-indigo-500',
+};
+
+const COLOR_HOVER_MAP: Record<string, string> = {
+  emerald: 'hover:bg-emerald-600',
+  teal: 'hover:bg-teal-600',
+  blue: 'hover:bg-blue-600',
+  cyan: 'hover:bg-cyan-600',
+  indigo: 'hover:bg-indigo-600',
+};
+
+const COLOR_FROM_MAP: Record<string, string> = {
+  emerald: 'from-emerald-400',
+  teal: 'from-teal-400',
+  blue: 'from-blue-400',
+  cyan: 'from-cyan-400',
+  indigo: 'from-indigo-400',
+};
+
+const COLOR_TO_MAP: Record<string, string> = {
+  emerald: 'to-emerald-500',
+  teal: 'to-teal-500',
+  blue: 'to-blue-500',
+  cyan: 'to-cyan-500',
+  indigo: 'to-indigo-500',
+};
+
 export function Community({ onBack }: CommunityProps) {
   const [user, setUser] = useState<User | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<string | undefined>();
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const currentUser = StorageService.getUser();
@@ -34,6 +67,10 @@ export function Community({ onBack }: CommunityProps) {
     ...group,
     joined: group.id === selectedGroup,
   }));
+
+  const filteredGroups = groups.filter(group =>
+    group.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const topMembers = user ? [
     { id: 1, name: 'Carlos López', class: '2°A', points: user.totalPoints - 70, avatar: '👨' },
@@ -72,6 +109,8 @@ export function Community({ onBack }: CommunityProps) {
               type="text"
               placeholder="Buscar grupos o estudiantes..."
               className="pl-11 h-12 rounded-xl bg-white shadow-sm border-gray-200"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
         </div>
@@ -109,13 +148,13 @@ export function Community({ onBack }: CommunityProps) {
         <div className="mb-6">
           <h3 className="font-bold text-gray-800 mb-4">Grupos Escolares</h3>
           <div className="space-y-3">
-            {groups.map((group) => (
+            {filteredGroups.map((group) => (
               <div
                 key={group.id}
                 className={`bg-white rounded-2xl p-5 shadow-md ${group.joined ? 'border-2 border-teal-300' : ''}`}
               >
                 <div className="flex items-center gap-4">
-                  <div className={`w-14 h-14 bg-${group.color}-500 rounded-xl flex items-center justify-center flex-shrink-0`}>
+                  <div className={`w-14 h-14 ${COLOR_BG_MAP[group.color] || 'bg-gray-500'} rounded-xl flex items-center justify-center flex-shrink-0`}>
                     <span className="text-2xl font-bold text-white">{group.name}</span>
                   </div>
                   <div className="flex-1">
@@ -141,7 +180,7 @@ export function Community({ onBack }: CommunityProps) {
                   {!group.joined && (
                     <button
                       onClick={() => handleJoinGroup(group.id)}
-                      className={`bg-${group.color}-500 hover:bg-${group.color}-600 text-white p-2 rounded-xl transition-colors`}
+                      className={`${COLOR_BG_MAP[group.color] || 'bg-gray-500'} ${COLOR_HOVER_MAP[group.color] || 'hover:bg-gray-600'} text-white p-2 rounded-xl transition-colors`}
                     >
                       <UserPlus className="w-5 h-5" />
                     </button>
@@ -157,8 +196,8 @@ export function Community({ onBack }: CommunityProps) {
                     </span>
                   </div>
                   <div className="bg-gray-200 rounded-full h-2 overflow-hidden">
-                    <div 
-                      className={`bg-gradient-to-r from-${group.color}-400 to-${group.color}-500 h-full rounded-full`}
+                    <div
+                      className={`bg-gradient-to-r ${COLOR_FROM_MAP[group.color] || 'from-gray-400'} ${COLOR_TO_MAP[group.color] || 'to-gray-500'} h-full rounded-full`}
                       style={{ width: `${(group.points / 5000) * 100}%` }}
                     ></div>
                   </div>
