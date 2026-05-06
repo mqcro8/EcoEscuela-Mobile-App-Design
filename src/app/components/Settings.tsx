@@ -115,6 +115,7 @@ export function Settings({ onBack, onLogout }: SettingsProps) {
                       )}
                       {item.type === 'select' && (
                         <Select
+                          key={settings.language}
                           value={getLanguageLabel(settings.language)}
                           onValueChange={handleLanguageChange}
                         >
